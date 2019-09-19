@@ -1,7 +1,14 @@
 dn: {{ LDAP_BASE_DN }}
 changetype: modify
+add: ou
+ou: {{ LDAP_BASE_DOMAIN }}
+-
+add: description
+description: {{ LDAP_BASE_DOMAIN }}
+-
+add: objectClass
 objectClass: gosaDepartment
-changetype: modify
 objectClass: gosaAcl
-changetype: modify
+-
+add: gosaAclEntry
 gosaAclEntry: 0:subtree:{{ CN_ADMIN_BS64 }}:{{ UID_FD_ADMIN_BS64 }}

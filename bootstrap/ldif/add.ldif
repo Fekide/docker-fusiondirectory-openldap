@@ -1,3 +1,19 @@
+dn: ou=roles,{{ LDAP_BASE_DN }}
+ou: roles
+objectClass: organizationalUnit
+
+dn: ou=groups,{{ LDAP_BASE_DN }}
+ou: groups
+objectClass: organizationalUnit
+
+dn: ou=people,{{ LDAP_BASE_DN }}
+ou: people
+objectClass: organizationalUnit
+
+dn: ou=aclroles,{{ LDAP_BASE_DN }}
+objectClass: organizationalUnit
+ou: aclroles
+
 dn: uid=fd-admin,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -6,11 +22,7 @@ cn: System Administrator
 sn: Administrator
 givenName: System
 uid: fd-admin
-userPassword: {{ FD_ADMIN_PASSWORD }}
-
-dn: ou=aclroles,{{ LDAP_BASE_DN }}
-objectClass: organizationalUnit
-ou: aclroles
+userPassword: {{ FD_ADMIN_PASSWORD_HASH }}
 
 dn: cn=admin,ou=aclroles,{{ LDAP_BASE_DN }}
 objectClass: top

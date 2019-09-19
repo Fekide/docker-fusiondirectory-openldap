@@ -10,8 +10,9 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
     sed -i "s|{{ LDAP_DOMAIN }}|${LDAP_DOMAIN}|g" $LDIF_FILE
     sed -i "s|{{ CN_ADMIN_BS64 }}|${CN_ADMIN_BS64}|g" $LDIF_FILE
-    sed -i "s|{{ UID_FD_ADMIN_BS64 }}|${FD_ADMIN_PASSWORD}|g" $LDIF_FILE
-    sed -i "s|{{ FD_ADMIN_PASSWORD }}|${FD_ADMIN_PASSWORD}|g" $LDIF_FILE
+    sed -i "s|{{ UID_FD_ADMIN_BS64 }}|${UID_FD_ADMIN_BS64}|g" $LDIF_FILE
+    sed -i "s|{{ FD_ADMIN_PASSWORD_HASH }}|${FD_ADMIN_PASSWORD_HASH}|g" $LDIF_FILE
+    sed -i "s|{{ LDAP_BASE_DOMAIN }}|${LDAP_BASE_DOMAIN}|g" $LDIF_FILE
     if grep -iq changetype $LDIF_FILE ; then
         ( ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 ) | log-helper debug
     else
@@ -24,8 +25,13 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 	CN_ADMIN_BS64=$(echo -n ${CN_ADMIN} | base64 | tr -d '\n')
 	UID_FD_ADMIN_BS64=$(echo -n ${UID_FD_ADMIN} | base64 | tr -d '\n')
 
-	LDAP_ADMIN_PASSWORD_HASH=$(slappasswd -s $LDAP_ADMIN_PASSWORD)
-	FD_ADMIN_PASSWORD_HASH=$(slappasswd -s $FD_ADMIN_PASSWORD)
+	LDAP_ADMIN_PASSWORD_HASH=$(slappasswd -s ${LDAP_ADMIN_PASSWORD})
+	FD_ADMIN_PASSWORD_HASH=$(slappasswd -s ${FD_ADMIN_PASSWORD})
+	
+	IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
+	LDAP_BASE_DOMAIN=${LDAP_BASE_DN_TABLE[0]}
+	echo LDAP_BASE_DOMAIN=${LDAP_BASE_DOMAIN}
+	echo TOP=${TOP}
 
 	fusiondirectory-insert-schema
 	mkdir /etc/ldap/schema/fusiondirectory/modify/

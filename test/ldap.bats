@@ -14,7 +14,8 @@ setup() {
         -e LDAP_READONLY_USER_USERNAME="readonly" \
         -e LDAP_READONLY_USER_PASSWORD="readonlypwd" \
         -e FD_ADMIN_PASSWORD="fdadminpwd" \
-        -d hrektts/fusiondirectory-openldap:latest
+        -d fekide/fusiondirectory-openldap:bats
+    echo $status
     [ "${status}" -eq 0 ]
 
     until [ "$(ldapsearch -x -h localhost -b ou=snapshots,${BASE_DN} -D cn=admin,${BASE_DN} -w adminpwd | grep 'result:')" = "result: 0 Success" ]
