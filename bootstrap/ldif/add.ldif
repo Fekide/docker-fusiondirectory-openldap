@@ -14,7 +14,7 @@ dn: ou=aclroles,{{ LDAP_BASE_DN }}
 objectClass: organizationalUnit
 ou: aclroles
 
-dn: uid=fd-admin,ou=people,{{ LDAP_BASE_DN }}
+dn: uid=fd-admin,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
