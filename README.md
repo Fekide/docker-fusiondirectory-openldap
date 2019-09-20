@@ -15,7 +15,7 @@ docker run --name ldap -p 389:389 \
   -e LDAP_DOMAIN="example.org" \
   -e LDAP_ADMIN_PASSWORD="password" \
   -e FD_ADMIN_PASSWORD="fdadminpwd" \
-  -d hrektts/fusiondirectory-openldap:latest
+  -d fekide/fusiondirectory-openldap:latest
 ```
 
 ## Environment Variables
