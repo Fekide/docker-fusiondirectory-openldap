@@ -4,8 +4,28 @@ LABEL maintainer="it@feki.de"\
 
 ARG FUSIONDIRECTORY_VERSION=1.3-1
 
-RUN apt-key adv --keyserver keys.gnupg.net --receive-keys D744D55EACDA69FF \
-	&& (echo "deb https://repos.fusiondirectory.org/fusiondirectory-current/debian-stretch stretch main"; \
+# Get Keys
+RUN set -e; \
+	export GNUPGHOME="/tmp/gnupg_home" && \
+	mkdir -p "$GNUPGHOME" && \
+	chmod 700 "$GNUPGHOME" && \
+	echo "disable-ipv6" >> "$GNUPGHOME/dirmngr.conf" && \
+	found=''; \
+	for server in \
+		ha.pool.sks-keyservers.net \
+		hkp://keyserver.ubuntu.com:80 \
+		hkp://p80.pool.sks-keyservers.net:80 \
+		pgp.mit.edu \
+		keys.gnupg.net \
+	; do \
+		echo "  trying $server"; \
+		apt-key adv --keyserver "$server" --keyserver-options timeout=10 --receive-keys D744D55EACDA69FF && found=yes && break; \
+		apt-key adv --keyserver "$server" --keyserver-options timeout=10 --receive-keys D744D55EACDA69FF && found=yes && break; \
+	done; \
+	test -z "$found" && echo >&2 "error: failed to fetch $key from several disparate servers -- network issues?" && exit 1; \
+	exit 0
+
+	RUN (echo "deb https://repos.fusiondirectory.org/fusiondirectory-current/debian-stretch stretch main"; \
 	echo "deb https://repos.fusiondirectory.org/fusiondirectory-extra/debian-stretch stretch main") \
 	> /etc/apt/sources.list.d/fusiondirectory-stretch.list \
 	&& apt-get update \
