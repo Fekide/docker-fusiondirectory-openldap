@@ -1,0 +1,18 @@
+version: '3'
+services:
+  openldap:
+    restart: always
+    image: fekide/fusiondirectory-openldap:latest
+    environment:
+      - LDAP_ORGANISATION="Example Organization"
+      - LDAP_DOMAIN=example.org
+      - LDAP_ADMIN_PASSWORD=adminpwd
+      - LDAP_CONFIG_PASSWORD=configpwd
+
+      - LDAP_READONLY_USER=true
+      - LDAP_READONLY_USER_USERNAME=reader
+      - LDAP_READONLY_USER_PASSWORD=readerpwd
+
+      - FD_ADMIN_PASSWORD=fdadminpwd
+
+      - LDAP_TLS=false
