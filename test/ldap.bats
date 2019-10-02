@@ -34,6 +34,10 @@ setup() {
     run ldapsearch -h localhost -D cn=admin,${BASE_DN} -w adminpwd \
         -b cn=readonly,${BASE_DN}
     [ "${status}" -eq 0 ]
+
+    run ldapsearch -h localhost -D cn=readonly,${BASE_DN} -w readonlypwd \
+        -b cn=readonly,${BASE_DN}
+    [ "${status}" -eq 0 ]
 }
 
 @test "check acl roles" {
