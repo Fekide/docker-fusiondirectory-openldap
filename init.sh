@@ -12,9 +12,9 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 		# fi
 		local val="$def"
 		if [ "${!fileVar:-}" ]; then
-			val="${!fileVar}"
+			val="$(<"${!fileVar}")"
 		elif [ "${!var:-}" ]; then
-			val="$(<"${!var}")"
+			val="${!var}"
 		fi
 		echo ${val}
 		if [ -z ${val} ]; then
