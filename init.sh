@@ -2,28 +2,33 @@
 
 if [ ! -e "$FIRST_START_DONE" ]; then
 
-	function file_env() {
+	function file_env () {
 		local var="$1"
 		local fileVar="${var}_FILE"
-
-		# The variables are already defined from the docker-light-baseimage
-		# So if the _FILE variable is available we ovewrite them
-		if [ "${!fileVar:-}" ]; then
-			log-helper trace "${fileVar} was defined"
-
-			val="$(< "${!fileVar}")"
-			log-helper debug "${var} was repalced with the contents of ${fileVar} (the value was: ${val})"
-
-			export "$var"="$val"
+		local def="${2:-}"
+		if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
+			echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
+			exit 1
 		fi
-		
+		local val="$def"
+		if [ "${!var:-}" ]; then
+			val="${!var}"
+		elif [ "${!fileVar:-}" ]; then
+			val="$(<"${!fileVar}")"
+		fi
+		echo ${val}
+		if [ -z ${val} ]; then
+			echo >&2 "error: neither $var nor $fileVar are set but are required"
+			exit 1
+		fi
+		export "$var"="$val"
 		unset "$fileVar"
 	}
 
 	function ldap_add_or_modify (){
 		local LDIF_FILE=$1
 
-		log-helper debug "Processing file ${LDIF_FILE}"
+		log-helper info "Processing file ${LDIF_FILE}"
 		sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
 		sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
 		sed -i "s|{{ LDAP_DOMAIN }}|${LDAP_DOMAIN}|g" $LDIF_FILE
@@ -45,6 +50,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 	CN_ADMIN_BS64=$(echo -n ${CN_ADMIN} | base64 | tr -d '\n')
 	UID_FD_ADMIN_BS64=$(echo -n ${UID_FD_ADMIN} | base64 | tr -d '\n')
 
+	echo 
 	file_env 'FD_ADMIN_PASSWORD'
 
 	LDAP_ADMIN_PASSWORD_HASH=$(slappasswd -s ${LDAP_ADMIN_PASSWORD})
