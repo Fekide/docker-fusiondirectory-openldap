@@ -23,7 +23,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 			exit 1
 		fi
 		export "$var"="$val"
-		echo ${$var}
+		printenv $var
 		unset "$fileVar"
 	}
 
