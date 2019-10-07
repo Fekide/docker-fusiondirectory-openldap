@@ -16,12 +16,14 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 		elif [ "${!var:-}" ]; then
 			val="${!var}"
 		fi
+		echo "setting ${var}:"
 		echo ${val}
 		if [ -z ${val} ]; then
 			echo >&2 "error: neither $var nor $fileVar are set but are required"
 			exit 1
 		fi
 		export "$var"="$val"
+		echo ${$var}
 		unset "$fileVar"
 	}
 
@@ -50,7 +52,6 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 	CN_ADMIN_BS64=$(echo -n ${CN_ADMIN} | base64 | tr -d '\n')
 	UID_FD_ADMIN_BS64=$(echo -n ${UID_FD_ADMIN} | base64 | tr -d '\n')
 
-	echo 
 	file_env 'FD_ADMIN_PASSWORD'
 
 	LDAP_ADMIN_PASSWORD_HASH=$(slappasswd -s ${LDAP_ADMIN_PASSWORD})
