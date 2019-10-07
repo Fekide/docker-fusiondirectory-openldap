@@ -53,6 +53,8 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 	UID_FD_ADMIN_BS64=$(echo -n ${UID_FD_ADMIN} | base64 | tr -d '\n')
 
 	file_env 'FD_ADMIN_PASSWORD'
+	echo $FD_ADMIN_PASSWORD
+	echo $LDAP_ADMIN_PASSWORD
 
 	LDAP_ADMIN_PASSWORD_HASH=$(slappasswd -s ${LDAP_ADMIN_PASSWORD})
 	FD_ADMIN_PASSWORD_HASH=$(slappasswd -s ${FD_ADMIN_PASSWORD})
