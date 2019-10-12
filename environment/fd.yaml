@@ -1,0 +1,62 @@
+# This is the default image configuration file
+# These values will persists in container environment.
+
+# All environment variables used after the container first start
+# must be defined here.
+# more information : https://github.com/osixia/docker-light-baseimage
+
+# General container configuration
+# see table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
+
+PLUGIN_ALIAS: False
+PLUGIN_APPLICATIONS: False
+PLUGIN_ARGONAUT: False
+PLUGIN_AUDIT: True
+PLUGIN_AUTOFS: False
+PLUGIN_CERTIFICATES: False
+PLUGIN_COMMUNITY: False
+PLUGIN_CYRUS: False
+PLUGIN_DEBCONF: False
+PLUGIN_DEVELOPERS: False
+PLUGIN_DHCP: False
+PLUGIN_DNS: False
+PLUGIN_DOVECOT: False
+PLUGIN_DSA: True
+PLUGIN_EJBCA: False
+PLUGIN_FAI: False
+PLUGIN_FREERADIUS: False
+PLUGIN_FUSIONINVENTORY: False
+PLUGIN_GPG: False
+PLUGIN_IPMI: False
+PLUGIN_LDAPDUMP: True
+PLUGIN_LDAPMANAGER: True
+PLUGIN_MAIL: True
+PLUGIN_MIXEDGROUPS: True
+PLUGIN_NAGIOS: False
+PLUGIN_NETGROUPS: False
+PLUGIN_NEWSLETTER: False
+PLUGIN_OPSI: False
+PLUGIN_PERSONAL: True
+PLUGIN_POSIX: False
+PLUGIN_POSTFIX: False
+PLUGIN_PPOLICY: True
+PLUGIN_PUPPET: False
+PLUGIN_PUREFTPD: False
+PLUGIN_QUOTA: False
+PLUGIN_RENATER_PARTAGE: False
+PLUGIN_REPOSITORY: False
+PLUGIN_SAMBA: False
+PLUGIN_SOGO: False
+PLUGIN_SPAMASSASSIN: False
+PLUGIN_SQUID: False
+PLUGIN_SSH: True
+PLUGIN_SUBCONTRACTING: False
+PLUGIN_SUDO: True
+PLUGIN_SUPANN: False
+PLUGIN_SYMPA: False
+PLUGIN_SYSTEMS: True
+PLUGIN_USER_REMINDER: False
+PLUGIN_WEBLINK: False
+PLUGIN_WEBSERVICE: False
+
+REAPPLY_PLUGIN_SCHEMAS: False

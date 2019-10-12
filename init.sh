@@ -1,17 +1,5 @@
 #!/bin/bash -e
 
-if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ];  then
-  set -x
-fi
-
-silent() {
-  if [ "$DEBUG_MODE" = "TRUE" ] || [ "$DEBUG_MODE" = "true" ];  then
-    "$@"
-  else
-    "$@" > /dev/null 2>&1
-  fi
-}
-
 if [ ! -e "$FIRST_START_DONE" ]; then
 
 	function file_env () {
@@ -51,61 +39,6 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 	IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
 	LDAP_BASE_DOMAIN=${LDAP_BASE_DN_TABLE[0]}
 	echo LDAP_BASE_DOMAIN=${LDAP_BASE_DOMAIN}
-fi
-
-### Insert Plugin Schemas
-if [ ! -e ${FIRST_START_DONE} ] || [ "$REAPPLY_PLUGIN_SCHEMAS" = "TRUE" ] || [ "$REAPPLY_PLUGIN_SCHEMAS" = "true" ];  then
-  ### Determine which plugins we want installed 
-  PLUGIN_ALIAS=${PLUGIN_ALIAS:-"FALSE"}
-  PLUGIN_APPLICATIONS=${PLUGIN_APPLICATIONS:-"FALSE"}
-  PLUGIN_ARGONAUT=${PLUGIN_ARGONAUT:-"FALSE"}
-  PLUGIN_AUDIT=${PLUGIN_AUDIT:-"TRUE"}
-  PLUGIN_AUTOFS=${PLUGIN_AUTOFS:-"FALSE"}
-  PLUGIN_CERTIFICATES=${PLUGIN_CERTIFICATES:-"FALSE"}
-  PLUGIN_COMMUNITY=${PLUGIN_COMMUNITY:-"FALSE"}
-  PLUGIN_CYRUS=${PLUGIN_CYRUS:-"FALSE"}
-  PLUGIN_DEBCONF=${PLUGIN_DEBCONF:-"FALSE"}
-  PLUGIN_DEVELOPERS=${PLUGIN_DEVELOPERS:-"FALSE"}
-  PLUGIN_DHCP=${PLUGIN_DHCP:-"FALSE"}
-  PLUGIN_DNS=${PLUGIN_DNS:-"FALSE"}
-  PLUGIN_DOVECOT=${PLUGIN_DOVECOT:-"FALSE"}
-  PLUGIN_DSA=${PLUGIN_DSA:-"TRUE"}
-  PLUGIN_EJBCA=${PLUGIN_EJBCA:-"FALSE"}
-  PLUGIN_FAI=${PLUGIN_FAI:-"FALSE"}
-  PLUGIN_FREERADIUS=${PLUGIN_FREERADIUS:-"FALSE"}
-  PLUGIN_FUSIONINVENTORY=${PLUGIN_FUSIONINVENTORY:-"FALSE"}
-  PLUGIN_GPG=${PLUGIN_GPG:-"FALSE"}
-  PLUGIN_IPMI=${PLUGIN_IPMI:-"FALSE"}
-  PLUGIN_LDAPDUMP=${PLUGIN_LDAPDUMP:-"TRUE"}
-  PLUGIN_LDAPMANAGER=${PLUGIN_LDAPMANAGER:-"TRUE"}
-  PLUGIN_MAIL=${PLUGIN_MAIL:-"TRUE"}
-  PLUGIN_MIXEDGROUPS=${PLUGIN_MIXEDGROUPS:-"TRUE"}
-  PLUGIN_NAGIOS=${PLUGIN_NAGIOS:-"FALSE"}
-  PLUGIN_NETGROUPS=${PLUGIN_NETGROUPS:-"FALSE"}
-  PLUGIN_NEWSLETTER=${PLUGIN_NEWSLETTER:-"FALSE"}
-  PLUGIN_OPSI=${PLUGIN_OPSI:-"FALSE"}
-  PLUGIN_PERSONAL=${PLUGIN_PERSONAL:-"TRUE"}
-  PLUGIN_POSIX=${PLUGIN_POSIX:-"FALSE"}
-  PLUGIN_POSTFIX=${PLUGIN_POSTFIX:-"FALSE"}
-  PLUGIN_PPOLICY=${PLUGIN_PPOLICY:-"TRUE"}
-  PLUGIN_PUPPET=${PLUGIN_PUPPET:-"FALSE"}
-  PLUGIN_PUREFTPD=${PLUGIN_PUREFTPD:-"FALSE"}
-  PLUGIN_QUOTA=${PLUGIN_QUOTA:-"FALSE"}
-  PLUGIN_RENATER_PARTAGE=${PLUGIN_RENATER_PARTAGE:-"FALSE"}
-  PLUGIN_REPOSITORY=${PLUGIN_REPOSITORY:-"FALSE"}
-  PLUGIN_SAMBA=${PLUGIN_SAMBA:-"FALSE"}
-  PLUGIN_SOGO=${PLUGIN_SOGO:-"FALSE"}
-  PLUGIN_SPAMASSASSIN=${PLUGIN_SPAMASSASSIN:-"FALSE"}
-  PLUGIN_SQUID=${PLUGIN_SQUID:-"FALSE"}
-  PLUGIN_SSH=${PLUGIN_SSH:-"TRUE"}
-  PLUGIN_SUBCONTRACTING=${PLUGIN_SUBCONTRACTING:-"FALSE"}
-  PLUGIN_SUDO=${PLUGIN_SUDO:-"TRUE"}
-  PLUGIN_SUPANN=${PLUGIN_SUPANN:-"FALSE"}
-  PLUGIN_SYMPA=${PLUGIN_SYMPA:-"FALSE"}
-  PLUGIN_SYSTEMS=${PLUGIN_SYSTEMS:-"TRUE"}
-  PLUGIN_USER_REMINDER=${PLUGIN_USER_REMINDER:-"FALSE"}
-  PLUGIN_WEBLINK=${PLUGIN_WEBLINK:-"FALSE"}
-  PLUGIN_WEBSERVICE=${PLUGIN_WEBSERVICE:-"FALSE"}
 
 	ldap_add_or_modify (){
 		local LDIF_FILE=$1
@@ -126,7 +59,7 @@ if [ ! -e ${FIRST_START_DONE} ] || [ "$REAPPLY_PLUGIN_SCHEMAS" = "TRUE" ] || [ "
 	}
 
 	fd_apply() {
-		if [ "$REAPPLY_PLUGIN_SCHEMAS" = "TRUE" ] || [ "$REAPPLY_PLUGIN_SCHEMAS" = "true" ];  then
+		if [[ "$REAPPLY_PLUGIN_SCHEMAS" =~ [tT][rR][uU][eE] ]];  then
 			RE="Re"
 			A="a"
 			ARG="-m"
@@ -134,242 +67,241 @@ if [ ! -e ${FIRST_START_DONE} ] || [ "$REAPPLY_PLUGIN_SCHEMAS" = "TRUE" ] || [ "
 			A="A"
 			ARG="-i"
 		fi
-		echo "** [openldap-fusiondirectory] ${RE}${A}pplying Fusion Directory "$@" schema"
+		log-helper info "[openldap-fusiondirectory] ${RE}${A}pplying Fusion Directory "$@" schema"
 	}
-	
-	silent fusiondirectory-insert-schema
+	fusiondirectory-insert-schema | log-helper debug
 
 	## Handle the core plugins
-  if [ "$REAPPLY_PLUGIN_SCHEMAS" = "TRUE" ] || [ "$REAPPLY_PLUGIN_SCHEMAS" = "true" ];  then
+  if [ "$REAPPLY_PLUGIN_SCHEMAS" =~ [tT][rR][uU][eE] ];  then
   	fd_apply core
-  	fusiondirectory-insert-schema -m core*.schema
-  	fusiondirectory-insert-schema -m ldapns.schema
-  	fusiondirectory-insert-schema -m template-fd.schema
+  	fusiondirectory-insert-schema -m core*.schema | log-helper debug
+  	fusiondirectory-insert-schema -m ldapns.schema | log-helper debug
+  	fusiondirectory-insert-schema -m template-fd.schema | log-helper debug
   fi
 
 ### Import / Modify Schemas - Put Mail First
-  if [[ "$PLUGIN_MAIL" != "FALSE" ]] && [[ "$PLUGIN_MAIL" != "false" ]];  then
+  if [[ "$PLUGIN_MAIL" =~ [tT][rR][uU][eE] ]];  then
     fd_apply mail
-    silent fusiondirectory-insert-schema $ARG mail*.schema
+    fusiondirectory-insert-schema $ARG mail*.schema | log-helper debug
   fi
   
-  if [[ "$PLUGIN_SYSTEMS" != "FALSE" ]] && [[ "$PLUGIN_SYSTEMS" != "false" ]];  then
+  if [[ "$PLUGIN_SYSTEMS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply systems
-    silent fusiondirectory-insert-schema $ARG service*.schema
-    silent fusiondirectory-insert-schema $ARG systems*.schema
+    fusiondirectory-insert-schema $ARG service*.schema | log-helper debug
+    fusiondirectory-insert-schema $ARG systems*.schema | log-helper debug
   fi
-  if [[ "$PLUGIN_AUDIT" != "FALSE" ]] && [[ "$PLUGIN_AUDIT" != "false" ]];  then
+  if [[ "$PLUGIN_AUDIT" =~ [tT][rR][uU][eE] ]];  then
     fd_apply audit
-    silent fusiondirectory-insert-schema $ARG audit*.schema
+    fusiondirectory-insert-schema $ARG audit*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_ALIAS" != "FALSE" ]] && [[ "$PLUGIN_ALIAS" != "false" ]];  then
+  if [[ "$PLUGIN_ALIAS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply alias
-    silent fusiondirectory-insert-schema $ARG alias*.schema
+    fusiondirectory-insert-schema $ARG alias*.schema | log-helper debug
   fi
   
-  if [[ "$PLUGIN_APPLICATIONS" != "FALSE" ]] && [[ "$PLUGIN_APPLICATIONS" != "false" ]];  then
+  if [[ "$PLUGIN_APPLICATIONS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply applications
-    silent fusiondirectory-insert-schema $ARG applications*.schema
+    fusiondirectory-insert-schema $ARG applications*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_ARGONAUT" != "FALSE" ]] && [[ "$PLUGIN_ARGONAUT" != "false" ]];  then
+  if [[ "$PLUGIN_ARGONAUT" =~ [tT][rR][uU][eE] ]];  then
     fd_apply argonaut
-    silent fusiondirectory-insert-schema $ARG argonaut*.schema
+    fusiondirectory-insert-schema $ARG argonaut*.schema | log-helper debug
   fi
   
-  if [[ "$PLUGIN_COMMUNITY" != "FALSE" ]] && [[ "$PLUGIN_COMMUNITY" != "false" ]];  then
+  if [[ "$PLUGIN_COMMUNITY" =~ [tT][rR][uU][eE] ]];  then
   	fd_apply community
-    silent fusiondirectory-insert-schema $ARG community*.schema
+    fusiondirectory-insert-schema $ARG community*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_CYRUS" != "FALSE" ]] && [[ "$PLUGIN_CYRUS" != "false" ]];  then
+  if [[ "$PLUGIN_CYRUS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply cyrus
-    silent fusiondirectory-insert-schema $ARG cyrus*.schema
+    fusiondirectory-insert-schema $ARG cyrus*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_DEBCONF" != "FALSE" ]] && [[ "$PLUGIN_DEBCONF" != "false" ]];  then
+  if [[ "$PLUGIN_DEBCONF" =~ [tT][rR][uU][eE] ]];  then
     fd_apply debconf
-    silent fusiondirectory-insert-schema $ARG debconf*.schema
+    fusiondirectory-insert-schema $ARG debconf*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_DHCP" != "FALSE" ]] && [[ "$PLUGIN_DHCP" != "false" ]];  then
+  if [[ "$PLUGIN_DHCP" =~ [tT][rR][uU][eE] ]];  then
     fd_apply DHCP
-    silent fusiondirectory-insert-schema $ARG dhcp*.schema
+    fusiondirectory-insert-schema $ARG dhcp*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_DNS" != "FALSE" ]] && [[ "$PLUGIN_DNS" != "false" ]];  then
+  if [[ "$PLUGIN_DNS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply DNS
-    silent fusiondirectory-insert-schema $ARG dns*.schema
+    fusiondirectory-insert-schema $ARG dns*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_DOVECOT" != "FALSE" ]] && [[ "$PLUGIN_DOVECOT" != "false" ]];  then
+  if [[ "$PLUGIN_DOVECOT" =~ [tT][rR][uU][eE] ]];  then
     fd_apply dovecot
-    silent fusiondirectory-insert-schema $ARG dovecot*.schema
+    fusiondirectory-insert-schema $ARG dovecot*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_DSA" != "FALSE" ]] && [[ "$PLUGIN_DSA" != "false" ]];  then
+  if [[ "$PLUGIN_DSA" =~ [tT][rR][uU][eE] ]];  then
     fd_apply DSA
-    silent fusiondirectory-insert-schema $ARG dsa*.schema
+    fusiondirectory-insert-schema $ARG dsa*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_EJBCA" != "FALSE" ]] && [[ "$PLUGIN_EJBCA" != "false" ]];  then
+  if [[ "$PLUGIN_EJBCA" =~ [tT][rR][uU][eE] ]];  then
     fd_apply ejbca
-    silent fusiondirectory-insert-schema $ARG ejbca*.schema
+    fusiondirectory-insert-schema $ARG ejbca*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_FAI" != "FALSE" ]] && [[ "$PLUGIN_FAI" != "false" ]];  then
+  if [[ "$PLUGIN_FAI" =~ [tT][rR][uU][eE] ]];  then
     fd_apply FAI
-    silent fusiondirectory-insert-schema $ARG fai*.schema
+    fusiondirectory-insert-schema $ARG fai*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_FREERADIUS" != "FALSE" ]] && [[ "$PLUGIN_FREERADIUS" != "false" ]];  then
+  if [[ "$PLUGIN_FREERADIUS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply FreeRadius
-    silent fusiondirectory-insert-schema $ARG freeradius*.schema
+    fusiondirectory-insert-schema $ARG freeradius*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_FUSIONINVENTORY" != "FALSE" ]] && [[ "$PLUGIN_FUSIONINVENTORY" != "false" ]];  then
+  if [[ "$PLUGIN_FUSIONINVENTORY" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Inventory
-    silent fusiondirectory-insert-schema $ARG fusioninventory*.schema
-    silent fusiondirectory-insert-schema $ARG inventory*.schema
+    fusiondirectory-insert-schema $ARG fusioninventory*.schema | log-helper debug
+    fusiondirectory-insert-schema $ARG inventory*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_GPG" != "FALSE" ]] && [[ "$PLUGIN_GPG" != "false" ]];  then
+  if [[ "$PLUGIN_GPG" =~ [tT][rR][uU][eE] ]];  then
     fd_apply GPG
-    silent fusiondirectory-insert-schema $ARG gpg*.schema
-    silent fusiondirectory-insert-schema $ARG pgp*.schema
+    fusiondirectory-insert-schema $ARG gpg*.schema | log-helper debug
+    fusiondirectory-insert-schema $ARG pgp*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_IPMI" != "FALSE" ]] && [[ "$PLUGIN_IPMI" != "false" ]];  then
+  if [[ "$PLUGIN_IPMI" =~ [tT][rR][uU][eE] ]];  then
     fd_apply IPMI
-    silent fusiondirectory-insert-schema $ARG ipmi*.schema
+    fusiondirectory-insert-schema $ARG ipmi*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_NAGIOS" != "FALSE" ]] && [[ "$PLUGIN_MIXEDGROUPS" != "false" ]];  then
+  if [[ "$PLUGIN_NAGIOS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Nagios
-    silent fusiondirectory-insert-schema $ARG nagios*.schema
-    silent fusiondirectory-insert-schema $ARG netways*.schema
+    fusiondirectory-insert-schema $ARG nagios*.schema | log-helper debug
+    fusiondirectory-insert-schema $ARG netways*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_NETGROUPS" != "FALSE" ]] && [[ "$PLUGIN_NETGROUPS" != "false" ]];  then
+  if [[ "$PLUGIN_NETGROUPS" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Netgroups
-    silent fusiondirectory-insert-schema $ARG netgroups*.schema
+    fusiondirectory-insert-schema $ARG netgroups*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_NEWSLETTER" != "FALSE" ]] && [[ "$PLUGIN_NEWSLETTER" != "false" ]];  then
+  if [[ "$PLUGIN_NEWSLETTER" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Newsletter
-    silent fusiondirectory-insert-schema $ARG newsletter*.schema
+    fusiondirectory-insert-schema $ARG newsletter*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_OPSI" != "FALSE" ]] && [[ "$PLUGIN_OPSI" != "false" ]];  then
+  if [[ "$PLUGIN_OPSI" =~ [tT][rR][uU][eE] ]];  then
     fd_apply OPSI
-    silent fusiondirectory-insert-schema $ARG opsi*.schema
+    fusiondirectory-insert-schema $ARG opsi*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_PPOLICY" != "FALSE" ]] && [[ "$PLUGIN_PPOLICY" != "false" ]];  then
+  if [[ "$PLUGIN_PPOLICY" =~ [tT][rR][uU][eE] ]];  then
     fd_apply ppolicy
-    silent fusiondirectory-insert-schema $ARG ppolicy*.schema
+    fusiondirectory-insert-schema $ARG ppolicy*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_QUOTA" != "FALSE" ]] && [[ "$PLUGIN_QUOTA" != "false" ]];  then
+  if [[ "$PLUGIN_QUOTA" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Quota
-    silent fusiondirectory-insert-schema $ARG quota*.schema
+    fusiondirectory-insert-schema $ARG quota*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_PUPPET" != "FALSE" ]] && [[ "$PLUGIN_PUPPET" != "false" ]];  then
+  if [[ "$PLUGIN_PUPPET" =~ [tT][rR][uU][eE] ]];  then
     fd_apply puppet
-    silent fusiondirectory-insert-schema $ARG puppet*.schema
+    fusiondirectory-insert-schema $ARG puppet*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_REPOSITORY" != "FALSE" ]] && [[ "$PLUGIN_REPOSITORY" != "false" ]];  then
+  if [[ "$PLUGIN_REPOSITORY" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Repository
-    silent fusiondirectory-insert-schema $ARG repository*.schema
+    fusiondirectory-insert-schema $ARG repository*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SAMBA" != "FALSE" ]] && [[ "$PLUGIN_SAMBA" != "false" ]];  then
+  if [[ "$PLUGIN_SAMBA" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Samba
-    silent fusiondirectory-insert-schema $ARG samba*.schema
+    fusiondirectory-insert-schema $ARG samba*.schema | log-helper debug
   fi
   
-  if [[ "$PLUGIN_PERSONAL" != "FALSE" ]] && [[ "$PLUGIN_PERSONAL" != "false" ]];  then
+  if [[ "$PLUGIN_PERSONAL" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Personal
-    silent fusiondirectory-insert-schema $ARG personal*.schema
+    fusiondirectory-insert-schema $ARG personal*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_POSTFIX" != "FALSE" ]] && [[ "$PLUGIN_POSTFIX" != "false" ]];  then
+  if [[ "$PLUGIN_POSTFIX" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Postfix
-    silent fusiondirectory-insert-schema $ARG postfix*.schema
+    fusiondirectory-insert-schema $ARG postfix*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_PUREFTPD" != "FALSE" ]] && [[ "$PLUGIN_PUREFTPD" != "false" ]];  then
+  if [[ "$PLUGIN_PUREFTPD" =~ [tT][rR][uU][eE] ]];  then
     fd_apply PureFTPd
-    silent fusiondirectory-insert-schema $ARG pureftpd*.schema
+    fusiondirectory-insert-schema $ARG pureftpd*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SSH" != "FALSE" ]] && [[ "$PLUGIN_SSH" != "false" ]];  then
+  if [[ "$PLUGIN_SSH" =~ [tT][rR][uU][eE] ]];  then
     fd_apply SSH
-    silent fusiondirectory-insert-schema $ARG openssh*.schema
+    fusiondirectory-insert-schema $ARG openssh*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SOGO" != "FALSE" ]] && [[ "$PLUGIN_SOGO" != "false" ]];  then
+  if [[ "$PLUGIN_SOGO" =~ [tT][rR][uU][eE] ]];  then
     fd_apply SoGo
-    silent fusiondirectory-insert-schema $ARG sogo*.schema
-    silent fusiondirectory-insert-schema $ARG cal*.schema
+    fusiondirectory-insert-schema $ARG sogo*.schema | log-helper debug
+    fusiondirectory-insert-schema $ARG cal*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SPAMASSASSIN" != "FALSE" ]] && [[ "$PLUGIN_SPAMASSASSIN" != "false" ]];  then
+  if [[ "$PLUGIN_SPAMASSASSIN" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Spamassassin
-    silent fusiondirectory-insert-schema $ARG spamassassin*.schema
+    fusiondirectory-insert-schema $ARG spamassassin*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SQUID" != "FALSE" ]] && [[ "$PLUGIN_SQUID" != "false" ]];  then
+  if [[ "$PLUGIN_SQUID" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Squid
-    silent fusiondirectory-insert-schema $ARG proxy*.schema
+    fusiondirectory-insert-schema $ARG proxy*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SUBCONTRACTING" != "FALSE" ]] && [[ "$PLUGIN_SUBCONTRACTING" != "false" ]];  then
+  if [[ "$PLUGIN_SUBCONTRACTING" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Subcontracting
-    silent fusiondirectory-insert-schema $ARG subcontracting*.schema
+    fusiondirectory-insert-schema $ARG subcontracting*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SUDO" != "FALSE" ]] && [[ "$PLUGIN_SUDO" != "false" ]];  then
+  if [[ "$PLUGIN_SUDO" =~ [tT][rR][uU][eE] ]];  then
     fd_apply sudo
-    silent fusiondirectory-insert-schema $ARG sudo*.schema
+    fusiondirectory-insert-schema $ARG sudo*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SUPANN" != "FALSE" ]] && [[ "$PLUGIN_SUPANN" != "false" ]];  then
+  if [[ "$PLUGIN_SUPANN" =~ [tT][rR][uU][eE] ]];  then
     fd_apply supann
-    silent fusiondirectory-insert-schema $ARG internet2*.schema
-    silent fusiondirectory-insert-schema $ARG supann*.schema
+    fusiondirectory-insert-schema $ARG internet2*.schema | log-helper debug
+    fusiondirectory-insert-schema $ARG supann*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_SYMPA" != "FALSE" ]] && [[ "$PLUGIN_SYMPA" != "false" ]];  then
+  if [[ "$PLUGIN_SYMPA" =~ [tT][rR][uU][eE] ]];  then
     fd_apply Sympa
-    silent fusiondirectory-insert-schema $ARG sympa*.schema
+    fusiondirectory-insert-schema $ARG sympa*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_USER_REMINDER" != "FALSE" ]] && [[ "$PLUGIN_USER_REMINDER" != "false" ]];  then
+  if [[ "$PLUGIN_USER_REMINDER" =~ [tT][rR][uU][eE] ]];  then
     fd_apply reminder
-    silent fusiondirectory-insert-schema $ARG user-reminder*.schema
+    fusiondirectory-insert-schema $ARG user-reminder*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_WEBLINK" != "FALSE" ]] && [[ "$PLUGIN_WEBLINK" != "false" ]];  then
+  if [[ "$PLUGIN_WEBLINK" =~ [tT][rR][uU][eE] ]];  then
   	fd_apply weblink
-    silent fusiondirectory-insert-schema $ARG weblink*.schema
+    fusiondirectory-insert-schema $ARG weblink*.schema | log-helper debug
   fi
 
-  if [[ "$PLUGIN_WEBSERVICE" != "FALSE" ]] && [[ "$PLUGIN_WEBSERVICE" != "false" ]];  then
+  if [[ "$PLUGIN_WEBSERVICE" =~ [tT][rR][uU][eE] ]];  then
     fd_apply webservice
-    silent fusiondirectory-insert-schema $ARG webservice*.schema
+    fusiondirectory-insert-schema $ARG webservice*.schema | log-helper debug
   fi
 
-	if [[ "$LDAP_RFC2307BIS_SCHEMA" != "FALSE" ]] && [[ "$LDAP_RFC2307BIS_SCHEMA" != "false" ]];  then
+	if [[ "$LDAP_RFC2307BIS_SCHEMA" =~ [tT][rR][uU][eE] ]];  then
     fd_apply rfc2307bis
-    silent fusiondirectory-insert-schema -m rfc2307bis.schema
+    fusiondirectory-insert-schema -m rfc2307bis.schema | log-helper debug
   fi
 
-	ldap_add_or_modify "/var/fusiondirectory/bootstrap/ldif/modify.ldif"
-	ldap_add_or_modify "/var/fusiondirectory/bootstrap/ldif/add.ldif"
+	ldap_add_or_modify "/var/fusiondirectory/bootstrap/ldif/modify.ldif" 
+	ldap_add_or_modify "/var/fusiondirectory/bootstrap/ldif/add.ldif" 
 
 	rm -rf /tmp/*
 fi
