@@ -1,6 +1,6 @@
-FROM osixia/openldap:1.2.5
+FROM osixia/openldap:1.3.0
 LABEL maintainer="it@feki.de"\
-	version="1.2.4"
+	version="1.3.0"
 
 ENV FUSIONDIRECTORY_VERSION=1.3\
 		SCHEMA2LDIF_VERSION=1.3
