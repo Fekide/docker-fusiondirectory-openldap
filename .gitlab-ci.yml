@@ -22,12 +22,12 @@ test:
   services:
     - $CI_REGISTRY_IMAGE:bats
   before_script:
-    - apt update -y
-    - apt install software-properties-common
+    - apt-get update -y
+    - apt-get install -y software-properties-common
     - add-apt-repository ppa:duggan/bats --yes
-    - apt update -y
+    - apt-get update -y
     - >-
-      apt install -y
+      apt-get install -y
       bats
       ldap-utils
   script:
