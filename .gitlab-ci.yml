@@ -1,4 +1,4 @@
-image: docker:latest
+image: ubuntu:latest
 services:
 - docker:dind
 
@@ -11,7 +11,6 @@ test:
   stage: test
   services:
     - docker:latest
-    - ubuntu:latest
   before_script:
     - docker version
     - docker info
