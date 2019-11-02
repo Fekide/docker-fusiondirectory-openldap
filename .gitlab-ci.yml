@@ -1,6 +1,9 @@
 image: docker:latest
 services:
-- docker:dind
+  - docker:dind
+
+variables:
+  DOCKER_VERSION: 18.06.3~ce~3-0~ubuntu
 
 stages:
   - test
@@ -19,9 +22,9 @@ build-test:
 test:
   stage: test
   image: ubuntu:latest
-  services:
-    - $CI_REGISTRY_IMAGE:bats
   before_script:
+    - apt-cache madison docker-ce
+    - apt-get -o Dpkg::Options::='--force-confnew' install -y --force-yes docker-ce=${DOCKER_VERSION}
     - apt-get update -y
     - apt-get install -y software-properties-common
     - add-apt-repository ppa:duggan/bats --yes
@@ -31,7 +34,7 @@ test:
       bats
       ldap-utils
   script:
-    - bats test
+    - bats test-gitlab
 
 build-master:
   stage: build
