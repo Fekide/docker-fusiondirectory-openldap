@@ -15,8 +15,6 @@ build-test:
   script:
     - docker build -t "$CI_REGISTRY_IMAGE:bats" .
     - docker push "$CI_REGISTRY_IMAGE:bats"
-  only:
-    - master
 
 test:
   stage: test
