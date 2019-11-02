@@ -1,4 +1,4 @@
-image: ubuntu:latest
+image: docker:latest
 services:
 - docker:dind
 
@@ -6,14 +6,24 @@ stages:
   - test
   - build
 
+build-test:
+  stage: test
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:bats" .
+    - docker push "$CI_REGISTRY_IMAGE:bats"
+  only:
+    - master
 
 test:
   stage: test
+  image: ubuntu:latest
   services:
-    - docker:latest
+    - $CI_REGISTRY_IMAGE:bats
   before_script:
-    - docker version
-    - docker info
     - apt update -y
     - apt install software-properties-common
     - add-apt-repository ppa:duggan/bats --yes
@@ -23,7 +33,7 @@ test:
       bats
       ldap-utils
   script:
-    - make test
+    - bats test
 
 build-master:
   stage: build
