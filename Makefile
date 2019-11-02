@@ -9,4 +9,4 @@ release: build
 .PHONY: test
 test:
 	@docker build -t fekide/fusiondirectory-openldap:bats .
-	bats test
+	bats test/travis

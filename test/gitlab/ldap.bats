@@ -1,5 +1,8 @@
 #!/usr/bin/env bats
 
+load '../libs/bats-support/load'
+load '../libs/bats-assert/load'
+
 function setup() {
     BASE_DN="dc=example,dc=org"
     run docker run --label bats-type="test" -p 389:389 -p 636:636 \
@@ -18,8 +21,7 @@ function setup() {
         i=$(( i+1 ))
         if [ $i -gt 100 ]
         then
-            run echo 'Setup failed, container did not answer!'
-            assert_failure
+            fail 'Setup failed, container did not answer!'
         fi
     done
 }
