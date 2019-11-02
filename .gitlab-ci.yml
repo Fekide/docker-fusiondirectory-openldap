@@ -3,9 +3,24 @@ services:
 - docker:dind
 
 stages:
-- build
+  - test
+  - build
 
-# This file is a template, and might need editing before it works on your project.
+
+test:
+  stage: test
+  before_script:
+    - docker version
+    - docker info
+    - add-apt-repository ppa:duggan/bats --yes
+    - apt-get update -y
+    - >-
+      apt-get install -y
+      bats
+      ldap-utils
+  script:
+    - make test
+
 build-master:
   stage: build
   services:
@@ -27,5 +42,5 @@ build:
   script:
     - docker build --pull -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
-  only:
-    - dev
+  except:
+    - master
