@@ -24,7 +24,6 @@ test:
   stage: test
   image: ubuntu:latest
   before_script:
-    - apt-cache madison docker-ce
     - apt-get update -y
     - >-
       apt-get install -y software-properties-common
@@ -39,7 +38,8 @@ test:
       apt-get -o Dpkg::Options::='--force-confnew' install -y
       docker-ce=${DOCKER_VERSION}
       ldap-utils
-    - sh test/libs/bats/install.sh /usr
+    - chmod +x ./test/libs/bats/install.sh
+    - ./test/libs/bats/install.sh /usr
   script:
     - bats test/gitlab
 
