@@ -12,12 +12,12 @@ test:
   before_script:
     - docker version
     - docker info
-    - apt-get update -y
-    - apt-get install software-properties-common
+    - apt update -y
+    - apt install software-properties-common
     - add-apt-repository ppa:duggan/bats --yes
-    - apt-get update -y
+    - apt update -y
     - >-
-      apt-get install -y
+      apt install -y
       bats
       ldap-utils
   script:
