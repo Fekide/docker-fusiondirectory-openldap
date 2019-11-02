@@ -9,6 +9,9 @@ stages:
 
 test:
   stage: test
+  services:
+    - docker:latest
+    - ubuntu:latest
   before_script:
     - docker version
     - docker info
