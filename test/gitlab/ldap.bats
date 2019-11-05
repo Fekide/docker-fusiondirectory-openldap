@@ -4,7 +4,7 @@ load '../libs/bats-support/load'
 load '../libs/bats-assert/load'
 
 function setup() {
-    
+
     BASE_DN="dc=example,dc=org"
     run docker run --label bats-type="test" \
         -e LDAP_ORGANISATION="Example Organization" \
@@ -88,7 +88,7 @@ function setup() {
 }
 
 @test "check fd-admin" {
-    run ldapwhoami -h ${CONTAINER_IP} -D uid=fd-admin,${BASE_DN} -w admin
+    run ldapwhoami -h ${CONTAINER_IP} -D uid=fd-admin,${BASE_DN} -w password
     assert_success
 }
 
