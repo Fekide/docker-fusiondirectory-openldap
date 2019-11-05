@@ -40,7 +40,8 @@ test:
       ldap-utils
     - chmod +x ./test/libs/bats/install.sh
     - ./test/libs/bats/install.sh /usr
-    - docker connect gitlab_testing $HOSTNAME
+    - export JOB_CONTAINER_NAME=`docker container ls -q -f "label=com.gitlab.gitlab-runner.job.id=$CI_JOB_ID"`
+    - docker network connect gitlab_testing $JOB_CONTAINER_NAME
   script:
     - bats test/gitlab
 
