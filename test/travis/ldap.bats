@@ -92,7 +92,7 @@ function setup() {
 }
 
 function teardown() {
-    CIDS=$(docker ps -q --filter "label=bats-type")
+    CIDS=($(docker ps -q --filter "label=bats-type"))
     if [ ${#CIDS[@]} -gt 0 ]; then
         docker stop ${CIDS[@]}
         docker rm ${CIDS[@]}

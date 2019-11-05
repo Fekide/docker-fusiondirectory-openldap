@@ -9,7 +9,7 @@ function setup() {
         -e LDAP_ORGANISATION="Example Organization" \
         -e LDAP_DOMAIN="example.org" \
         -e LDAP_READONLY_USER=true \
-        --network gitlab_internal \
+        --network gitlab_testing \
         -d ${CI_REGISTRY_IMAGE}:bats
     assert_success
 
@@ -90,7 +90,7 @@ function setup() {
 }
 
 function teardown() {
-    CIDS=$(docker ps -q --filter "label=bats-type")
+    CIDS=($(docker ps -q --filter "label=bats-type"))
     if [ ${#CIDS[@]} -gt 0 ]; then
         docker stop ${CIDS[@]}
         docker rm ${CIDS[@]}
