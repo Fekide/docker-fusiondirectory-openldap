@@ -40,6 +40,7 @@ test:
       ldap-utils
     - chmod +x ./test/libs/bats/install.sh
     - ./test/libs/bats/install.sh /usr
+    - docker connect gitlab_testing $HOSTNAME
   script:
     - bats test/gitlab
 

@@ -15,7 +15,7 @@ function setup() {
 
     CONTAINER_NAME=$(docker ps --format "{{.Names}}" --filter "label=bats-type")
     i=1
-    until [ "$(ldapsearch -x -h ${CONTAINER_NAME} -b ou=snapshots,${BASE_DN} -D cn=admin,${BASE_DN} -w adminpwd | grep 'result:')" = "result: 0 Success" ]
+    until [ "$(ldapsearch -x -h ${CONTAINER_NAME} -b ou=snapshots,${BASE_DN} -D cn=admin,${BASE_DN} -w admin | grep 'result:')" = "result: 0 Success" ]
     do
         sleep 1
         i=$(( i+1 ))
